@@ -4,6 +4,11 @@ const { Markup } = Telegraf
 
 const app = new Telegraf('928495508:AAE5EVMIufeszYFPEU4UofXl16xmMAL13Ac')
 const PAYMENT_TOKEN = '284685063:TEST:OGM2NzdkYjVjZjAw'
+var UserChatId;
+const UserChatIdSaved = 958018952;
+var message;
+
+//app.telegram.sendMessage(UserChatIdSaved,'Tengo tu ID :D')
 
 const products = [
     {
@@ -36,11 +41,12 @@ function createInvoice (product) {
 }
 
 // Start command
-app.command('start', ({ reply }) => reply('Bienvenido, blablabla'))
+app.command('start', ({ reply }) => reply('Bienvenido, blablabla '))
 
 // Show offer
 app.hears(/^que.*/i, ({ replyWithMarkdown }) => replyWithMarkdown(`
 Tengo medicos :D
+
 
 ${products.reduce((acc, p) => 
          acc += `*${p.name}* - $${p.price} \n`, '')}    
@@ -51,8 +57,14 @@ Cual te gusta más?`,
 // Order product
 products.forEach(p => {
     app.hears(p.name, (ctx) => {
-        console.log(`${ctx.from.first_name} is about to buy a ${p.name}.`)
+        UserChatId = ctx.message.chat.id
+        console.log(`${ctx.from.first_name} is about to buy a ${p.name}. Este seria el id = ` + UserChatId)
+    
         ctx.replyWithInvoice(createInvoice(p))
+        ctx.forwardMessage(UserChatId, UserChatId, false, 0)
+        console.log("dat " + ctx.telegram.getChat(UserChatId))
+        //app.telegram.sendMessage(UserChatId, message);
+
     })
 })
 
